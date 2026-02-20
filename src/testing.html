@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+<button onclick="connect()">Connect</button>
+<button onclick="create()">Create Session</button>
+
+<script>
+    let socket;
+
+    function connect() {
+        socket = new WebSocket("ws://localhost:8080/ws");
+
+        socket.onopen = () => console.log("Connected");
+
+        socket.onmessage = (event) => {
+            console.log("Received:", event.data);
+        };
+
+        socket.onerror = (err) => console.error(err);
+    }
+
+    function create() {
+        socket.send(JSON.stringify({
+            type: "CREATE_SESSION"
+        }));
+    }
+</script>
+</body>
+</html>

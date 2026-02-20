@@ -24,6 +24,11 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-websocket-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
