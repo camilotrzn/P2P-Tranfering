@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signaling App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            justify-content: flex-end;
+        }
+        .subcontainer {
+            display: flex;
+        }
+        button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Signaling App</h1>
+    <div class="subcontainer">
+        <button onclick="connect()">Connect</button>
+        <button onclick="create()">Create Session</button>
+        <button onclick="close()">Close</button>
+    </div>
+    <input type="text" id="sessionIdInput" placeholder="Enter session ID">
+    <div class="subcontainer">
+        <button onclick="connectToSession()">Connect to Session</button>
+        <button onclick="testPrint">testPrint</button>
+        <button onclick="fetchSessions()">Fetch Sessions</button>
+    </div>
+    <ul id="sessionList"></ul>
+</div>
+
+<script>
+    let socket;
+
+    let myPeerId;
+    let mySessionId;
+
+    function connect() {
+        socket = new WebSocket("ws://localhost:8080/ws");
+
+        socket.onopen = () => console.log("Connected");
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === "PEERID_RESPONSE") {
+                console.log("Peer ID:", data.fromPeer);
+                myPeerId = data.fromPeer;
+            } else if (data.type === "SESSION_LIST") {
+                updateSessionList(data.sessionIds);
+            } else {
+                console.log("Received:", event.data);
+            }
+        };
+
+        socket.onerror = (err) => console.error(err);
+    }
+
+    function create() {
+        try {
+            socket.send(JSON.stringify({
+            type: "CREATE_SESSION"
+        }));
+
+        testREQUEST();
+        } catch (error) {
+        }
+    }
+
+    function close() {
+        socket.close();
+    }
+
+    function connectToSession(){
+
+       try {
+        const sessionIdInput = document.getElementById("sessionIdInput");
+        const sessionId = sessionIdInput.value;
+        if (sessionId) {
+        socket.send(JSON.stringify({
+            type: "JOIN_SESSION",
+                sessionId: sessionId
+        }));
+        } else {
+            alert("Please enter a session ID.");
+        }
+            } catch (error) {
+        }
+    }
+
+   function fetchSessions() {
+        const message = JSON.stringify({
+            type: "FETCH_SESSIONS"
+        });
+        socket.send(message);
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === "SESSION_LIST") {
+                console.log("List:", data.sessionIds);
+                updateSessionList(data.sessionIds);
+            } else {
+                console.log("Received:", event.data);
+            }
+        }
+    }
+
+    function updateSessionList(sessionIds) {
+        const sessionList = document.getElementById("sessionList");
+        sessionList.innerHTML = "";
+        sessionIds.forEach(id => {
+            const li = document.createElement("li");
+            li.textContent = id;
+            sessionList.appendChild(li);
+        });
+    }
+</script>
+</body>
+</html>
