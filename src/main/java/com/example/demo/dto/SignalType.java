@@ -3,9 +3,19 @@ package com.example.demo.dto;
 public enum SignalType {
     CREATE_SESSION,
     SESSION_CREATED,
+    JOIN_SUCCESS,
     JOIN_SESSION,
     OFFER,
     ANSWER,
     ICE_CANDIDATE,
-    ERROR
+    ERROR,
+
+    PEER_LEFT,
+
+    SESSION_LIST,
+    FETCH_SESSIONS,
+
+    PEERID_REQUEST,
+    PEERID_RESPONSE,
+    SESSIONID_REQUEST
 }
